@@ -1,105 +1,60 @@
-document.addEventListener('DOMContentLoaded', function () {
-  // Welcome Modal Elements
-  const welcomeModal = document.getElementById('welcomeModal');
-  const userNameInput = document.getElementById('userName');
-  const submitBtn = document.getElementById('submitName');
-  const userNameDisplay = document.getElementById('userNameDisplay');
-
-  // Message Form Elements
-  const form = document.getElementById('messageForm');
-  const successModal = document.getElementById('successModal');
-  const submittedData = document.getElementById('submittedData');
-  const closeModal = document.getElementById('closeModal');
-  const messageFormName = document.getElementById('name');
-
-  // Mobile Navigation Elements
-  const mobileMenuButton = document.getElementById('mobileMenuButton');
-  const mobileMenu = document.getElementById('mobileMenu');
-  const menuIcon = document.getElementById('menuIcon');
-
-  // Check for existing user
-  const savedName = localStorage.getItem('userName');
-
-  if (savedName) {
-    welcomeModal.style.display = 'none';
-    userNameDisplay.textContent = savedName;
-    if (messageFormName) messageFormName.value = savedName;
+// When the user scrolls down, hide the navbar. When the user scrolls up, show the navbar
+var prevScrollpos = window.pageYOffset;
+window.onscroll = function() {
+  var currentScrollPos = window.pageYOffset;
+  if (prevScrollpos > currentScrollPos) {
+    document.getElementById("header").style.top = "0";
   } else {
-    welcomeModal.style.display = 'flex';
+    document.getElementById("header").style.top = "-50px";
+  }
+  prevScrollpos = currentScrollPos;
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  // 1. Prompt for user name and fill welcome message (only on index.html)
+  const welcomeName = document.getElementById("welcome-name");
+  if (welcomeName) {
+    let userName = prompt("Please enter your name:");
+    if (!userName) userName = "Guest";
+    welcomeName.textContent = userName;
   }
 
-  // Welcome Modal Handler
-  if (submitBtn) {
-    submitBtn.addEventListener('click', function () {
-      const name = userNameInput.value.trim();
-      if (name) {
-        localStorage.setItem('userName', name);
-        welcomeModal.style.display = 'none';
-        userNameDisplay.textContent = name;
-        if (messageFormName) messageFormName.value = name;
-      } else {
-        alert('Please enter your name');
-        userNameInput.focus();
-      }
-    });
-  }
-
-  // Message Form Handler
+  // 2. Form validation & result display (only on index.html)
+  const form = document.getElementById("contact-form");
   if (form) {
-    form.addEventListener('submit', function (e) {
+    form.addEventListener("submit", (e) => {
       e.preventDefault();
-      const formData = {
-        name: localStorage.getItem('userName') || document.getElementById('name').value,
-        dob: document.getElementById('dob').value,
-        email: document.getElementById('email').value,
-        gender: document.querySelector('input[name="gender"]:checked').value,
-        message: document.getElementById('message').value
-      };
 
-      if (submittedData) {
-        submittedData.innerHTML = `
-          <p><strong>Name:</strong> ${formData.name}</p>
-          <p><strong>Date of Birth:</strong> ${formData.dob}</p>
-          <p><strong>Email:</strong> ${formData.email}</p>
-          <p><strong>Gender:</strong> ${formData.gender}</p>
-          <p><strong>Message:</strong> ${formData.message}</p>
-        `;
+      const nama = form.nama.value.trim();
+      const dob = form.dob.value;
+      const gender = form.gender.value;
+      const message = form.message.value.trim();
+
+      // Simple validation
+      if (!nama || !dob || !gender || !message) {
+        alert("Please fill all fields.");
+        return;
       }
 
-      if (successModal) successModal.classList.remove('hidden');
-    });
-  }
+      // Build result HTML
+      const currentTime = new Date().toString();
+      let resultHTML = `<p>Current time: ${currentTime}</p>`;
+      resultHTML += `<p>Name: ${nama}</p>`;
+      resultHTML += `<p>Date of Birth: ${dob}</p>`;
+      resultHTML += `<p>Gender: ${gender}</p>`;
+      resultHTML += `<p>Message: ${message}</p>`;
 
-  // Close Modal Handler
-  if (closeModal) {
-    closeModal.addEventListener('click', function () {
-      // Close modal
-      successModal.classList.add('hidden');
-
+      document.getElementById("form-result").innerHTML = resultHTML;
       form.reset();
-      localStorage.removeItem('userName');
-      document.documentElement.scrollIntoView({ behavior: 'smooth' });
-      setTimeout(() => {
-        location.reload();
-      }, 1500); // Matches typical scroll duration
     });
   }
 
-  // Mobile Menu Handler
-  if (mobileMenuButton && mobileMenu && menuIcon) {
-    mobileMenuButton.addEventListener('click', function (e) {
-      e.stopPropagation();
-      mobileMenu.classList.toggle('hidden');
-      menuIcon.classList.toggle('fa-bars');
-      menuIcon.classList.toggle('fa-times');
-    });
-
-    document.addEventListener('click', function (e) {
-      if (!mobileMenu.contains(e.target) && e.target !== mobileMenuButton) {
-        mobileMenu.classList.add('hidden');
-        menuIcon.classList.remove('fa-times');
-        menuIcon.classList.add('fa-bars');
-      }
+  // 3. Navbar toggle (works on all pages)
+  const navToggle = document.getElementById('nav-toggle');
+  const navLinks = document.getElementById('nav-links');
+  if (navToggle && navLinks) {
+    navToggle.addEventListener('click', function() {
+      navLinks.classList.toggle('show');
     });
   }
 });
